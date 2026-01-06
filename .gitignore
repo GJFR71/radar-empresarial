@@ -1,0 +1,17 @@
+# Ambiente virtual
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Dados (não versionar)
+data/raw/
+data/processed/
+
+# Sistema / IDE
+.vscode/
+.DS_Store

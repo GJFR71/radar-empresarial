@@ -17,12 +17,14 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 
 # =========================
@@ -60,6 +62,38 @@ class Periodo:
 
 
 # =========================
+# Sessão HTTP com retry (robustez)
+# =========================
+
+def _build_session() -> requests.Session:
+    """
+    Cria Session com retry/backoff para erros transitórios (429/5xx).
+    Isso cobre boa parte das instabilidades do servidor e da rede.
+    """
+    retries = Retry(
+        total=5,
+        connect=5,
+        read=5,
+        backoff_factor=2,  # 2s, 4s, 8s, 16s...
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["GET"],
+        raise_on_status=False,
+    )
+    adapter = HTTPAdapter(
+        max_retries=retries,
+        pool_connections=10,
+        pool_maxsize=10,
+    )
+    session = requests.Session()
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    return session
+
+
+_SESSION = _build_session()
+
+
+# =========================
 # Utilitários
 # =========================
 
@@ -74,23 +108,48 @@ def sha256_file(path: Path) -> str:
 def download_file(url: str, dest_path: Path, timeout: int = 300) -> tuple[int, str]:
     """
     Baixa arquivo via streaming. Retorna (status_code, final_url).
-    Lança exceção apenas para erros de conexão/timeout; HTTP != 200 é tratado pelo status_code.
+
+    Regras:
+    - HTTP != 200: retorna (status, final_url) sem lançar exceção.
+    - Erros de conexão/timeout: faz retry (3 tentativas) e, se persistir, lança exceção.
     """
     headers = {"User-Agent": "Mozilla/5.0 (Data Science Challenge)"}
 
-    with requests.get(url, stream=True, timeout=timeout, headers=headers, allow_redirects=True) as r:
-        status = r.status_code
-        final_url = str(r.url)
+    # retry extra para erros durante o streaming (ex.: ChunkedEncodingError)
+    for attempt in range(1, 4):
+        try:
+            with _SESSION.get(
+                url,
+                stream=True,
+                timeout=timeout,
+                headers=headers,
+                allow_redirects=True,
+            ) as r:
+                status = r.status_code
+                final_url = str(r.url)
 
-        if status != 200:
-            return status, final_url
+                if status != 200:
+                    return status, final_url
 
-        with dest_path.open("wb") as f:
-            for chunk in r.iter_content(chunk_size=1024 * 1024):
-                if chunk:
-                    f.write(chunk)
+                with dest_path.open("wb") as f:
+                    for chunk in r.iter_content(chunk_size=1024 * 1024):
+                        if chunk:
+                            f.write(chunk)
 
-    return 200, final_url
+                return 200, final_url
+
+        except requests.RequestException:
+            # remove arquivo parcial, se existir
+            if dest_path.exists():
+                dest_path.unlink(missing_ok=True)
+
+            if attempt < 3:
+                time.sleep(5 * attempt)  # 5s, 10s
+            else:
+                raise
+
+    # nunca chega aqui, mas mantém assinatura clara
+    return 0, url
 
 
 def read_periodos_csv(path: Path) -> list[Periodo]:
@@ -159,7 +218,6 @@ def append_manifest_row(manifest_path: Path, row: dict) -> None:
 
 def download_periodo_zip(periodo: Periodo, manifest_path: Path) -> None:
     dataset = "pgfn_nao_previdenciario"
-
     filename = f"{dataset}_ano={periodo.ano}_tri={periodo.trimestre}_{RUN_DATE}.zip"
     out_path = RAW_PGFN_DIR / filename
 
@@ -191,6 +249,7 @@ def download_periodo_zip(periodo: Periodo, manifest_path: Path) -> None:
     print(f"[INFO] Baixando {periodo.ano} T{periodo.trimestre} ...")
     try:
         http_status, final_url = download_file(periodo.url_zip, out_path)
+
         if http_status != 200:
             # remove arquivo parcial, se existir
             if out_path.exists():
@@ -295,6 +354,7 @@ def download_dictionary(manifest_path: Path) -> None:
     print("[INFO] Baixando dicionário de campos ...")
     try:
         http_status, final_url = download_file(DICIONARIO_CAMPOS_URL, out_path, timeout=120)
+
         if http_status != 200:
             if out_path.exists():
                 out_path.unlink(missing_ok=True)

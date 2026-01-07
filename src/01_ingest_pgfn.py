@@ -1,16 +1,22 @@
 """
 01_ingest_pgfn.py
-Ingestão de dados públicos da PGFN (Dívida Ativa)
+Ingestão em lote dos dados públicos da PGFN (Dívida Ativa Geral / Não Previdenciário)
 
-Objetivo:
-- Baixar arquivos públicos da PGFN e salvar em data/raw
-- Não transformar dados nesta etapa (apenas ingestão + versionamento)
+Fonte de verdade dos períodos:
+- config/pgfn_periodos.csv  (ano,trimestre,url_zip)
+
+Saídas:
+- data/raw/pgfn/  (ZIPs baixados; diretório ignorado no Git)
+- reports/manifest_pgfn_YYYYMMDD.csv  (registro do que foi baixado/erros; versionável)
+
+Observação:
+- Este script só faz ingestão. Não extrai nem transforma.
 """
 
 from __future__ import annotations
 
+import csv
 import hashlib
-import os
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -20,40 +26,37 @@ import requests
 
 
 # =========================
-# Configurações
+# Paths do projeto
 # =========================
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATA_RAW = PROJECT_ROOT / "data" / "raw"
-DATA_RAW.mkdir(parents=True, exist_ok=True)
+CONFIG_DIR = PROJECT_ROOT / "config"
+REPORTS_DIR = PROJECT_ROOT / "reports"
+RAW_PGFN_DIR = PROJECT_ROOT / "data" / "raw" / "pgfn"
 
-TODAY = datetime.now().strftime("%Y%m%d")
+CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+RAW_PGFN_DIR.mkdir(parents=True, exist_ok=True)
+
+RUN_DATE = datetime.now().strftime("%Y%m%d")
+RUN_TS = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+# =========================
+# Fontes auxiliares
+# =========================
+
+DICIONARIO_CAMPOS_URL = (
+    "https://www.gov.br/pgfn/pt-br/assuntos/divida-ativa-da-uniao/"
+    "transparencia-fiscal-1/arquivos-dados-abertos/dicionario_de_campos.xlsx"
+)
 
 
 @dataclass(frozen=True)
-class Source:
-    name: str
-    url: str
-    # sugira extensão: "csv", "zip", "xlsx" etc. (opcional)
-    ext: Optional[str] = None
-
-
-# TODO: Ajuste as URLs reais da PGFN.
-# Dica: se a PGFN publicar mais de um arquivo (por UF, por período, etc.),
-# cadastre vários itens aqui.
-SOURCES = [
-    Source(
-        name="pgfn_sida_nao_previdenciario_2025_t3",
-        url="https://dadosabertos.pgfn.gov.br/2025_trimestre_03/Dados_abertos_Nao_Previdenciario.zip",
-        ext="zip",
-    ),
-    Source(
-        name="pgfn_dicionario_campos",
-        url="https://www.gov.br/pgfn/pt-br/assuntos/divida-ativa-da-uniao/transparencia-fiscal-1/arquivos-dados-abertos/dicionario_de_campos.xlsx",
-        ext="xlsx",
-    ),
-]
-
+class Periodo:
+    ano: int
+    trimestre: int
+    url_zip: str
 
 
 # =========================
@@ -68,87 +71,323 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def guess_extension_from_headers(response: requests.Response) -> Optional[str]:
-    ctype = (response.headers.get("Content-Type") or "").lower()
-    # heurística simples
-    if "text/csv" in ctype:
-        return "csv"
-    if "application/zip" in ctype:
-        return "zip"
-    if "application/json" in ctype:
-        return "json"
-    if "excel" in ctype or "spreadsheet" in ctype:
-        return "xlsx"
-    return None
-
-
-def download_file(url: str, dest_path: Path, timeout: int = 120) -> None:
+def download_file(url: str, dest_path: Path, timeout: int = 300) -> tuple[int, str]:
+    """
+    Baixa arquivo via streaming. Retorna (status_code, final_url).
+    Lança exceção apenas para erros de conexão/timeout; HTTP != 200 é tratado pelo status_code.
+    """
     headers = {"User-Agent": "Mozilla/5.0 (Data Science Challenge)"}
-    with requests.get(url, stream=True, timeout=timeout, headers=headers) as r:
-        r.raise_for_status()
+
+    with requests.get(url, stream=True, timeout=timeout, headers=headers, allow_redirects=True) as r:
+        status = r.status_code
+        final_url = str(r.url)
+
+        if status != 200:
+            return status, final_url
+
         with dest_path.open("wb") as f:
             for chunk in r.iter_content(chunk_size=1024 * 1024):
                 if chunk:
                     f.write(chunk)
 
+    return 200, final_url
 
-# =========================
-# Pipeline de ingestão
-# =========================
 
-def run() -> None:
-    print(f"[INFO] Projeto: {PROJECT_ROOT}")
-    print(f"[INFO] Pasta raw: {DATA_RAW}")
-    print(f"[INFO] Data de execução: {TODAY}")
-    print("-" * 60)
+def read_periodos_csv(path: Path) -> list[Periodo]:
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Arquivo não encontrado: {path}. "
+            "Crie e preencha config/pgfn_periodos.csv"
+        )
 
-    for src in SOURCES:
-        if "COLE_AQUI" in src.url or not src.url.strip():
+    periodos: list[Periodo] = []
+    with path.open("r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        required = {"ano", "trimestre", "url_zip"}
+        if not required.issubset(set(reader.fieldnames or [])):
             raise ValueError(
-                f"URL não configurada para a fonte '{src.name}'. "
-                f"Atualize o bloco SOURCES no script."
+                f"CSV inválido. Esperado cabeçalho com: {sorted(required)}. "
+                f"Encontrado: {reader.fieldnames}"
             )
 
-        print(f"[INFO] Baixando: {src.name}")
-        print(f"[INFO] URL: {src.url}")
+        for row in reader:
+            ano = int(row["ano"])
+            tri = int(row["trimestre"])
+            url = (row["url_zip"] or "").strip()
+            if not url:
+                continue
+            periodos.append(Periodo(ano=ano, trimestre=tri, url_zip=url))
 
-        # Faz um HEAD simples para tentar inferir extensão (se permitido pelo servidor)
-        ext = src.ext
-        try:
-            head = requests.head(src.url, allow_redirects=True, timeout=30)
-            if head.ok and ext is None:
-                guessed = guess_extension_from_headers(head)
-                ext = guessed or ext
-        except Exception:
-            # se HEAD falhar, seguimos sem travar
-            pass
+    # ordena para execução previsível
+    periodos.sort(key=lambda p: (p.ano, p.trimestre))
+    return periodos
 
-        # Nome final do arquivo: <fonte>_<YYYYMMDD>.<ext>
-        if ext is None:
-            # fallback: salva sem extensão
-            filename = f"{src.name}_{TODAY}"
-        else:
-            filename = f"{src.name}_{TODAY}.{ext}"
 
-        out_path = DATA_RAW / filename
+# =========================
+# Manifest (evidência)
+# =========================
 
-        # Evita rebaixar se arquivo já existir (idempotência simples)
-        if out_path.exists():
-            print(f"[INFO] Já existe: {out_path.name} (pulando download)")
-            continue
+MANIFEST_HEADERS = [
+    "run_date",
+    "run_ts",
+    "dataset",
+    "ano",
+    "trimestre",
+    "url",
+    "final_url",
+    "output_path",
+    "status",
+    "http_status",
+    "size_mb",
+    "sha256_16",
+    "message",
+]
 
-        download_file(src.url, out_path)
+
+def append_manifest_row(manifest_path: Path, row: dict) -> None:
+    new_file = not manifest_path.exists()
+    with manifest_path.open("a", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=MANIFEST_HEADERS)
+        if new_file:
+            writer.writeheader()
+        writer.writerow(row)
+
+
+# =========================
+# Pipeline
+# =========================
+
+def download_periodo_zip(periodo: Periodo, manifest_path: Path) -> None:
+    dataset = "pgfn_nao_previdenciario"
+
+    filename = f"{dataset}_ano={periodo.ano}_tri={periodo.trimestre}_{RUN_DATE}.zip"
+    out_path = RAW_PGFN_DIR / filename
+
+    # idempotência simples (se já existe, não baixa de novo)
+    if out_path.exists():
+        size_mb = out_path.stat().st_size / (1024 * 1024)
+        h16 = sha256_file(out_path)[:16]
+        append_manifest_row(
+            manifest_path,
+            dict(
+                run_date=RUN_DATE,
+                run_ts=RUN_TS,
+                dataset=dataset,
+                ano=periodo.ano,
+                trimestre=periodo.trimestre,
+                url=periodo.url_zip,
+                final_url=periodo.url_zip,
+                output_path=str(out_path),
+                status="SKIPPED_EXISTS",
+                http_status=200,
+                size_mb=f"{size_mb:.2f}",
+                sha256_16=h16,
+                message="Arquivo já existia; download não executado.",
+            ),
+        )
+        print(f"[INFO] {periodo.ano} T{periodo.trimestre}: já existe (pulando)")
+        return
+
+    print(f"[INFO] Baixando {periodo.ano} T{periodo.trimestre} ...")
+    try:
+        http_status, final_url = download_file(periodo.url_zip, out_path)
+        if http_status != 200:
+            # remove arquivo parcial, se existir
+            if out_path.exists():
+                out_path.unlink(missing_ok=True)
+            append_manifest_row(
+                manifest_path,
+                dict(
+                    run_date=RUN_DATE,
+                    run_ts=RUN_TS,
+                    dataset=dataset,
+                    ano=periodo.ano,
+                    trimestre=periodo.trimestre,
+                    url=periodo.url_zip,
+                    final_url=final_url,
+                    output_path="",
+                    status="FAILED_HTTP",
+                    http_status=http_status,
+                    size_mb="",
+                    sha256_16="",
+                    message="HTTP diferente de 200 (provável período indisponível).",
+                ),
+            )
+            print(f"[WARN] {periodo.ano} T{periodo.trimestre}: HTTP {http_status} (pulando)")
+            return
 
         size_mb = out_path.stat().st_size / (1024 * 1024)
-        file_hash = sha256_file(out_path)
+        h16 = sha256_file(out_path)[:16]
+        append_manifest_row(
+            manifest_path,
+            dict(
+                run_date=RUN_DATE,
+                run_ts=RUN_TS,
+                dataset=dataset,
+                ano=periodo.ano,
+                trimestre=periodo.trimestre,
+                url=periodo.url_zip,
+                final_url=final_url,
+                output_path=str(out_path),
+                status="OK",
+                http_status=200,
+                size_mb=f"{size_mb:.2f}",
+                sha256_16=h16,
+                message="Download concluído.",
+            ),
+        )
+        print(f"[OK] {periodo.ano} T{periodo.trimestre}: {size_mb:.2f} MB")
 
-        print(f"[OK] Salvo em: {out_path}")
-        print(f"[OK] Tamanho: {size_mb:.2f} MB")
-        print(f"[OK] SHA256: {file_hash[:16]}...")
+    except requests.RequestException as e:
+        # remove arquivo parcial, se existir
+        if out_path.exists():
+            out_path.unlink(missing_ok=True)
+        append_manifest_row(
+            manifest_path,
+            dict(
+                run_date=RUN_DATE,
+                run_ts=RUN_TS,
+                dataset=dataset,
+                ano=periodo.ano,
+                trimestre=periodo.trimestre,
+                url=periodo.url_zip,
+                final_url="",
+                output_path="",
+                status="FAILED_REQUEST",
+                http_status="",
+                size_mb="",
+                sha256_16="",
+                message=f"Erro de rede/timeout: {type(e).__name__}",
+            ),
+        )
+        print(f"[ERROR] {periodo.ano} T{periodo.trimestre}: erro de rede/timeout ({type(e).__name__})")
 
-        print("-" * 60)
 
-    print("[DONE] Ingestão PGFN concluída.")
+def download_dictionary(manifest_path: Path) -> None:
+    dataset = "pgfn_dicionario_campos"
+    filename = f"{dataset}_{RUN_DATE}.xlsx"
+    out_path = RAW_PGFN_DIR / filename
+
+    if out_path.exists():
+        size_mb = out_path.stat().st_size / (1024 * 1024)
+        h16 = sha256_file(out_path)[:16]
+        append_manifest_row(
+            manifest_path,
+            dict(
+                run_date=RUN_DATE,
+                run_ts=RUN_TS,
+                dataset=dataset,
+                ano="",
+                trimestre="",
+                url=DICIONARIO_CAMPOS_URL,
+                final_url=DICIONARIO_CAMPOS_URL,
+                output_path=str(out_path),
+                status="SKIPPED_EXISTS",
+                http_status=200,
+                size_mb=f"{size_mb:.2f}",
+                sha256_16=h16,
+                message="Dicionário já existia; download não executado.",
+            ),
+        )
+        print("[INFO] Dicionário: já existe (pulando)")
+        return
+
+    print("[INFO] Baixando dicionário de campos ...")
+    try:
+        http_status, final_url = download_file(DICIONARIO_CAMPOS_URL, out_path, timeout=120)
+        if http_status != 200:
+            if out_path.exists():
+                out_path.unlink(missing_ok=True)
+            append_manifest_row(
+                manifest_path,
+                dict(
+                    run_date=RUN_DATE,
+                    run_ts=RUN_TS,
+                    dataset=dataset,
+                    ano="",
+                    trimestre="",
+                    url=DICIONARIO_CAMPOS_URL,
+                    final_url=final_url,
+                    output_path="",
+                    status="FAILED_HTTP",
+                    http_status=http_status,
+                    size_mb="",
+                    sha256_16="",
+                    message="Falha ao baixar dicionário (HTTP != 200).",
+                ),
+            )
+            print(f"[WARN] Dicionário: HTTP {http_status}")
+            return
+
+        size_mb = out_path.stat().st_size / (1024 * 1024)
+        h16 = sha256_file(out_path)[:16]
+        append_manifest_row(
+            manifest_path,
+            dict(
+                run_date=RUN_DATE,
+                run_ts=RUN_TS,
+                dataset=dataset,
+                ano="",
+                trimestre="",
+                url=DICIONARIO_CAMPOS_URL,
+                final_url=final_url,
+                output_path=str(out_path),
+                status="OK",
+                http_status=200,
+                size_mb=f"{size_mb:.2f}",
+                sha256_16=h16,
+                message="Download do dicionário concluído.",
+            ),
+        )
+        print(f"[OK] Dicionário: {size_mb:.2f} MB")
+
+    except requests.RequestException as e:
+        if out_path.exists():
+            out_path.unlink(missing_ok=True)
+        append_manifest_row(
+            manifest_path,
+            dict(
+                run_date=RUN_DATE,
+                run_ts=RUN_TS,
+                dataset=dataset,
+                ano="",
+                trimestre="",
+                url=DICIONARIO_CAMPOS_URL,
+                final_url="",
+                output_path="",
+                status="FAILED_REQUEST",
+                http_status="",
+                size_mb="",
+                sha256_16="",
+                message=f"Erro de rede/timeout: {type(e).__name__}",
+            ),
+        )
+        print(f"[ERROR] Dicionário: erro de rede/timeout ({type(e).__name__})")
+
+
+def run() -> None:
+    periodos_path = CONFIG_DIR / "pgfn_periodos.csv"
+    manifest_path = REPORTS_DIR / f"manifest_pgfn_{RUN_DATE}.csv"
+
+    print(f"[INFO] Projeto: {PROJECT_ROOT}")
+    print(f"[INFO] Config: {periodos_path}")
+    print(f"[INFO] Raw PGFN: {RAW_PGFN_DIR}")
+    print(f"[INFO] Manifest: {manifest_path}")
+    print("-" * 70)
+
+    periodos = read_periodos_csv(periodos_path)
+    print(f"[INFO] Períodos carregados do CSV: {len(periodos)}")
+    print("-" * 70)
+
+    # dicionário 1x por execução
+    download_dictionary(manifest_path)
+    print("-" * 70)
+
+    for p in periodos:
+        download_periodo_zip(p, manifest_path)
+
+    print("-" * 70)
+    print("[DONE] Ingestão em lote PGFN concluída.")
 
 
 if __name__ == "__main__":

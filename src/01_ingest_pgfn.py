@@ -218,7 +218,9 @@ def append_manifest_row(manifest_path: Path, row: dict) -> None:
 
 def download_periodo_zip(periodo: Periodo, manifest_path: Path) -> None:
     dataset = "pgfn_nao_previdenciario"
-    filename = f"{dataset}_ano={periodo.ano}_tri={periodo.trimestre}_{RUN_DATE}.zip"
+
+    # NOME FIXO POR PERÍODO (idempotência real)
+    filename = f"{dataset}_ano={periodo.ano}_tri={periodo.trimestre}.zip"
     out_path = RAW_PGFN_DIR / filename
 
     # idempotência simples (se já existe, não baixa de novo)
@@ -324,7 +326,9 @@ def download_periodo_zip(periodo: Periodo, manifest_path: Path) -> None:
 
 def download_dictionary(manifest_path: Path) -> None:
     dataset = "pgfn_dicionario_campos"
-    filename = f"{dataset}_{RUN_DATE}.xlsx"
+
+    # NOME FIXO (idempotência real)
+    filename = f"{dataset}.xlsx"
     out_path = RAW_PGFN_DIR / filename
 
     if out_path.exists():

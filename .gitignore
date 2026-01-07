@@ -11,9 +11,11 @@ __pycache__/
 # Dados (não versionar)
 data/raw/
 data/processed/
+data/staging/
+
+# Manifests de execução
+reports/manifest_*.csv
 
 # Sistema / IDE
 .vscode/
 .DS_Store
-
-reports/manifest_pgfn_*.csv

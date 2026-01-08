@@ -1,21 +1,5 @@
-# Ambiente virtual
-.venv/
+# Logs temporários
+*.log
 
-# Python
-__pycache__/
-*.py[cod]
-
-# Jupyter
-.ipynb_checkpoints/
-
-# Dados (não versionar)
-data/raw/
-data/processed/
-data/staging/
-
-# Manifests de execução
-reports/manifest_*.csv
-
-# Sistema / IDE
-.vscode/
-.DS_Store
+# Arquivos parquet temporários
+*.parquet.tmp

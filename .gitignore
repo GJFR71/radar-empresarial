@@ -1,5 +1,40 @@
-# Logs temporários
+# =========================
+# Ambiente Python
+# =========================
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# =========================
+# Jupyter / notebooks
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# Dados (NUNCA versionar)
+# =========================
+data/
+data/raw/
+data/staging/
+data/processed/
+
+# =========================
+# Arquivos grandes / parquet
+# =========================
+*.parquet
+*.parquet.tmp
+
+# =========================
+# Manifests e artefatos temporários
+# =========================
+reports/manifest_*.csv
 *.log
 
-# Arquivos parquet temporários
-*.parquet.tmp
+# =========================
+# Sistema operacional / IDE
+# =========================
+.vscode/
+.DS_Store
+Thumbs.db

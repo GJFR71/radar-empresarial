@@ -1,0 +1,74 @@
+PGFN - Perfil Descritivo Básico
+Execução: 2026-01-07 23:07:25
+
+Resumo do Parquet
+- arquivo: D:\pasta_desafio\data\processed\pgfn\pgfn_sida.parquet
+- linhas (parquet metadata): 536,462,590
+- colunas: 18
+- row_groups: 2888
+
+Colunas (schema)
+cpf_cnpj, tipo_pessoa, tipo_devedor, nome_devedor, uf_unidade_responsavel, unidade_responsavel, numero_inscricao, tipo_situacao_inscricao, situacao_inscricao, receita_principal, data_inscricao, indicador_ajuizado, valor_consolidado, uf_devedor, ano, trimestre, uf, arquivo_origem
+
+Amostra usada para estatísticas
+- linhas na amostra: 100,000 (limite configurado: 100,000)
+
+Tipos (amostra)
+cpf_cnpj                   object
+tipo_pessoa                object
+tipo_devedor               object
+nome_devedor               object
+uf_unidade_responsavel     object
+unidade_responsavel        object
+numero_inscricao           object
+tipo_situacao_inscricao    object
+situacao_inscricao         object
+receita_principal          object
+data_inscricao             object
+indicador_ajuizado         object
+valor_consolidado           Int64
+uf_devedor                 object
+ano                         int32
+trimestre                   int32
+uf                         object
+arquivo_origem             object
+
+Nulos (top 30 colunas na amostra)
+                          nulos    pct
+uf_devedor               100000  100.0
+cpf_cnpj                      0    0.0
+tipo_pessoa                   0    0.0
+tipo_devedor                  0    0.0
+uf_unidade_responsavel        0    0.0
+nome_devedor                  0    0.0
+numero_inscricao              0    0.0
+tipo_situacao_inscricao       0    0.0
+situacao_inscricao            0    0.0
+unidade_responsavel           0    0.0
+receita_principal             0    0.0
+data_inscricao                0    0.0
+indicador_ajuizado            0    0.0
+valor_consolidado             0    0.0
+ano                           0    0.0
+trimestre                     0    0.0
+uf                            0    0.0
+arquivo_origem                0    0.0
+
+Describe numérico (amostra)
+                      count           mean               std     min       25%       50%        75%            max
+valor_consolidado  100000.0  9238918.25084  131587888.364449  1766.0  271585.0  630794.5  2063690.0  10703050334.0
+ano                100000.0         2020.0               0.0  2020.0    2020.0    2020.0     2020.0         2020.0
+trimestre          100000.0            1.0               0.0     1.0       1.0       1.0        1.0            1.0
+
+Distribuição (amostra) - ano
+ano
+2020    100000
+
+Distribuição (amostra) - trimestre
+trimestre
+1    100000
+
+Distribuição (amostra) - uf
+uf
+AL    51994
+AC    48006

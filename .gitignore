@@ -52,4 +52,7 @@ reports/pgfn_profile_*.txt
 reports/pgfn_schema_*.csv
 reports/pgfn_temporal_*.csv
 reports/pgfn_uf_*.csv
+.tmp/
+reports/cnpj_core_*.csv
+config/cnpj_arquivos.csv
 

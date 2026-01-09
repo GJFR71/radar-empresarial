@@ -1,0 +1,20 @@
+CNPJ – ETAPA 5 – Validação estrutural e diagnóstico inicial
+Execução: 2026-01-09 14:04:52
+
+Resumo do Parquet (metadata)
+- arquivo: data\processed\cnpj\cnpj_core_2025_12.parquet
+- linhas: 68,879,494
+- colunas: 10
+- row_groups: 562
+
+Amostra usada para diagnóstico
+- linhas: 200,000 (limite: 200,000)
+
+Artefatos gerados em reports/
+- cnpj_schema_20260109.csv
+- cnpj_head_eda_20260109.csv
+- cnpj_info_20260109.txt
+- cnpj_nulos_amostra_20260109.csv
+- cnpj_tabela_decisao_20260109.csv
+- cnpj_domains_20260109.csv
+- cnpj_keycheck_20260109.txt

@@ -1,0 +1,9 @@
+field,type
+cnpj_raiz,string
+qtd_estabelecimentos,int64
+qtd_ativos,int64
+qtd_inativos,int64
+dt_inicio_min,timestamp[ns]
+dt_inicio_max,timestamp[ns]
+dt_situacao_max,timestamp[ns]
+idade_empresa_dias,int64

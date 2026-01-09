@@ -1,0 +1,15 @@
+Etapa 6 — ABT CNPJ (snapshot 2025-12)
+Input:  D:\pasta_desafio\data\processed\cnpj\cnpj_core_2025_12.parquet
+Output: D:\pasta_desafio\data\processed\cnpj\cnpj_abt_2025_12.parquet
+Row groups total: 562 | processados: 20
+Linhas ABT (cnpj_raiz): 2,425,389
+
+Features:
+- cnpj_raiz
+- qtd_estabelecimentos
+- qtd_ativos
+- qtd_inativos
+- dt_inicio_min
+- dt_inicio_max
+- dt_situacao_max
+- idade_empresa_dias

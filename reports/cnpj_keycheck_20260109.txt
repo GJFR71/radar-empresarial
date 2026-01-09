@@ -1,0 +1,9 @@
+CNPJ – Key checks (amostra)
+
+- cnpj_raiz len==8 (%): 100.00
+- cnpj_raiz só dígitos (%): 100.00
+- nulos cnpj_raiz: 0
+
+- cnpj len==14 (%): 100.00
+- cnpj só dígitos (%): 100.00
+- nulos cnpj: 0

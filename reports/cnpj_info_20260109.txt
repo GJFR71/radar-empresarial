@@ -1,0 +1,17 @@
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 200000 entries, 0 to 199999
+Data columns (total 10 columns):
+ #   Column                   Non-Null Count   Dtype         
+---  ------                   --------------   -----         
+ 0   cnpj                     200000 non-null  object        
+ 1   cnpj_raiz                200000 non-null  object        
+ 2   razao_social             200000 non-null  object        
+ 3   porte_empresa            200000 non-null  object        
+ 4   situacao_cadastral       200000 non-null  object        
+ 5   data_situacao_cadastral  199992 non-null  datetime64[ns]
+ 6   cnae_fiscal_principal    200000 non-null  object        
+ 7   uf                       200000 non-null  object        
+ 8   municipio                200000 non-null  object        
+ 9   data_inicio_atividade    200000 non-null  datetime64[ns]
+dtypes: datetime64[ns](2), object(8)
+memory usage: 15.3+ MB

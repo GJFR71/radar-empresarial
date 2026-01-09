@@ -1,0 +1,11 @@
+coluna,tipo_parquet
+cnpj,string
+cnpj_raiz,string
+razao_social,string
+porte_empresa,string
+situacao_cadastral,string
+data_situacao_cadastral,timestamp[ns]
+cnae_fiscal_principal,string
+uf,string
+municipio,string
+data_inicio_atividade,timestamp[ns]

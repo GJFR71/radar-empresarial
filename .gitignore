@@ -56,3 +56,8 @@ reports/pgfn_uf_*.csv
 reports/cnpj_core_*.csv
 config/cnpj_arquivos.csv
 
+# Reports CNPJ (pesados) – se quiser manter só summaries/head/schema/info/keycheck
+reports/cnpj_domains_*.csv
+reports/cnpj_nulos_*.csv
+reports/cnpj_tabela_decisao_*.csv
+

@@ -38,3 +38,18 @@ reports/manifest_*.csv
 .vscode/
 .DS_Store
 Thumbs.db
+
+# =========================
+# Reports automáticos (não versionar)
+# =========================
+reports/pgfn_abt_head_*.csv
+reports/pgfn_abt_schema_*.csv
+reports/pgfn_describe_*.csv
+reports/pgfn_domain_*.csv
+reports/pgfn_head_*.csv
+reports/pgfn_nulos*.csv
+reports/pgfn_profile_*.txt
+reports/pgfn_schema_*.csv
+reports/pgfn_temporal_*.csv
+reports/pgfn_uf_*.csv
+

@@ -1,0 +1,19 @@
+elemento,decisao,justificativa,coluna,entra_na_abt,tipo_final,transformacao
+filtro_tipo_pessoa,Manter apenas Pessoa jurídica,Escopo do desafio é análise por empresa (CNPJ). Reduz custo e evita ruído de PF.,,,,
+,,chave p/ merge com base CNPJ,cnpj,SIM,string,digits_only + valida 14
+,,agregação por grupo econômico/raiz,cnpj_raiz,SIM,string,slice 0:8 do cnpj
+,,preserva semântica jurídica (3 níveis),tipo_devedor,SIM,category(dict),trim + dict_encode
+,,identificador da inscrição,numero_inscricao,SIM,string,trim
+,,variável central de status,situacao_inscricao,SIM,category(dict),trim + dict_encode
+,,domínio enxuto p/ análise,tipo_situacao_inscricao,SIM,category(dict),normaliza 5 níveis + dict_encode
+,,segmentação econômica,receita_principal,SIM,category(dict),trim + dict_encode
+,,dimensão temporal do crédito,data_inscricao,SIM,timestamp(ms),strptime dd/mm/yyyy
+,,indicador de judicialização,indicador_ajuizado,SIM,int8 (0/1),SIM/NAO->1/0
+,,métrica principal,valor_consolidado,SIM,float64,cast float64
+,,segmentação operacional,unidade_responsavel,SIM,string,trim
+,,dimensão discreta,ano,SIM,category(dict),cast int32 + dict_encode
+,,dimensão discreta,trimestre,SIM,category(dict),cast int32 + dict_encode
+,,baixa utilidade no recorte,uf,NAO,-,drop
+,,não essencial para objetivo por CNPJ,uf_devedor,NAO,-,drop
+,,"rastreio técnico, não ABT",arquivo_origem,NAO,-,drop
+,,ABT é PJ-only; variável seria constante,tipo_pessoa,NAO,-,usada apenas como filtro

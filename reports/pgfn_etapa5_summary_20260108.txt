@@ -1,0 +1,19 @@
+PGFN – ETAPA 5 – Validação estrutural e diagnóstico inicial
+Execução: 2026-01-08 16:57:00
+
+Resumo do Parquet (metadata)
+- arquivo: data\processed\pgfn\pgfn_sida_2024_2025.parquet
+- linhas: 226,222,615
+- colunas: 17
+- row_groups: 2283
+
+Amostra usada para diagnóstico
+- linhas: 200,000 (limite: 200,000)
+
+Artefatos gerados em reports/
+- pgfn_schema_20260108.csv
+- pgfn_head_eda_20260108.csv
+- pgfn_info_20260108.txt
+- pgfn_nulos_amostra_20260108.csv
+- pgfn_tabela_decisao_20260108.csv
+- pgfn_uf_devedor_check_20260108.csv

@@ -1,0 +1,18 @@
+coluna,tipo_atual,tipo_sugerido,acao_sugerida,nulos_%,n_valores_distintos,constante,justificativa
+cpf_cnpj,object,string,manter,0.0,93866,False,texto/identificador
+tipo_pessoa,object,category,manter,0.0,2,False,baixa cardinalidade
+tipo_devedor,object,category,manter,0.0,3,False,baixa cardinalidade
+nome_devedor,object,string,manter,0.0,89277,False,texto/identificador
+uf_devedor,object,category,manter,0.0,27,False,baixa cardinalidade
+unidade_responsavel,object,category,manter,0.0,7,False,baixa cardinalidade
+numero_inscricao,object,string,manter,0.0,145027,False,texto/identificador
+tipo_situacao_inscricao,object,category,manter,0.0,4,False,baixa cardinalidade
+situacao_inscricao,object,category,manter,0.0,43,False,baixa cardinalidade
+receita_principal,object,category,manter,0.0,25,False,baixa cardinalidade
+data_inscricao,object,datetime,manter,0.0,2701,False,variável temporal
+indicador_ajuizado,object,category,manter,0.0,2,False,baixa cardinalidade
+valor_consolidado,float64,float64,manter,0.0,137990,False,métrica financeira
+ano,int32,int,manter,0.0,1,True,dimensão temporal
+trimestre,int32,int,manter,0.0,1,True,dimensão temporal
+uf,object,category,manter,0.0,1,True,baixa cardinalidade
+arquivo_origem,object,category,manter,0.0,1,True,baixa cardinalidade

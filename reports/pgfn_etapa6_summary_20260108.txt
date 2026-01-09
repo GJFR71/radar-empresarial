@@ -1,0 +1,9 @@
+[ETAPA 6] Build ABT PGFN (2024–2025) — PJ-only
+- Execução: 20260108
+- Input:  D:/pasta_desafio/data/processed/pgfn/pgfn_sida_2024_2025.parquet
+- Output: D:/pasta_desafio/data/processed/pgfn/pgfn_abt_2024_2025.parquet
+- Linhas (metadata): 143,422,554
+- Colunas: 14
+- Row groups: 10959
+- Head: D:/pasta_desafio/reports/pgfn_abt_head_20260108.csv
+- Schema: D:/pasta_desafio/reports/pgfn_abt_schema_20260108.csv

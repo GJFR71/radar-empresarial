@@ -30,7 +30,7 @@ import pyarrow.parquet as pq
 
 
 # -------- Config --------
-PARQUET_PATH = Path("data/processed/pgfn/pgfn_sida.parquet")
+PARQUET_PATH = Path("data/processed/pgfn/pgfn_sida_2024_2025.parquet")
 REPORTS_DIR = Path("reports")
 REPORTS_DIR.mkdir(exist_ok=True)
 

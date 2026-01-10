@@ -2,28 +2,34 @@
 
 ## Objetivo
 Construir uma base consolidada por CNPJ, a partir de dados públicos,
-e desenvolver modelos simples e explicáveis para gerar inteligência
-prática para a área comercial.
+e gerar inteligência prática para priorização comercial.
 
-## Contexto de Negócio
-O projeto busca apoiar decisões de priorização comercial,
-avaliando:
-- saúde fiscal da empresa
-- risco de descontinuidade no médio prazo
+## Contexto
+O projeto avalia empresas sob dois eixos:
+- **Saúde fiscal** (capacidade de manter impostos em dia)
+- **Risco de descontinuidade** no médio prazo
 
-## Workflow do Projeto
-1. Compreensão do problema de negócio
-2. Extração e tratamento dos dados (ETL)
-3. Construção da base analítica (ABT)
-4. Análise exploratória e definição de KPIs
-5. Treinamento e seleção de modelos
-6. Avaliação de desempenho
-7. Apresentação dos resultados
+Os modelos são simples, explicáveis e orientados ao uso em negócio.
 
-## Estrutura do Repositório
-(Em construção)
+## Uso prático
+A partir de um **CNPJ raiz**, o usuário obtém:
+- score de risco (0–1)
+- classificação interpretável
+- principais fatores que influenciaram o resultado
 
-## Observações
-Projeto em desenvolvimento como parte de um desafio prático.
-O README será atualizado ao final com resultados e conclusões.
+Esse fluxo simula o uso real por equipes comerciais e de risco.
 
+## Estrutura
+src/
+pipeline/
+model1/
+model2/
+reports/
+model1/
+model2/
+notebooks/
+
+## Observação
+Os resultados são indicadores estatísticos baseados em dados públicos,
+destinados à priorização e apoio à decisão.
+  

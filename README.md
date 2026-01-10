@@ -29,6 +29,11 @@ model1/
 model2/
 notebooks/
 
+## Documentação
+- Dicionário completo de dados: `docs/dicionario_abt_completa.md`
+- Dicionário do Modelo 1: `docs/dicionario_modelo1.md`
+- Dicionário do Modelo 2: `docs/dicionario_modelo2.md`
+
 ## Observação
 Os resultados são indicadores estatísticos baseados em dados públicos,
 destinados à priorização e apoio à decisão.

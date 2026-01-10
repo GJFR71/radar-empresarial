@@ -1,0 +1,8 @@
+Modelo 1 — Dataset agregado (por cnpj_raiz)
+Input:  D:\pasta_desafio\data\processed\abt\abt_full_pgfn_cnpj_2024_2025_2025_12.parquet
+Filtro: hash%1000 < 100
+Output: D:\pasta_desafio\data\processed\model\model1_dataset_20260109.parquet
+Empresas (linhas): 712,681
+Positivos y_risco_fiscal=1: 92,302 (12.95%)
+Regra: y=1 se (qtd_ajuizado>0) OU (divida_total >= p90)
+Obs.: p90 calculado no universo processado.

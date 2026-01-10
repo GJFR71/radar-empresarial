@@ -1,0 +1,13 @@
+Modelo 1 — Regressão Logística (saúde fiscal)
+Dataset: data\processed\model\model1_dataset_20260109.parquet
+Amostra usada: 500,000 linhas (0=full)
+penalty=elasticnet | C=1.0 | l1_ratio=0.5
+max_iter=8000 | tol=0.0001
+
+ROC AUC: 0.9827
+Average Precision (PR-AUC): 0.9395
+Lift@10%: 7.398
+Precision@10%: 0.960
+Recall@10%: 0.740
+
+Observação: métricas @10% simulam priorização comercial (top decil).

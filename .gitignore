@@ -60,4 +60,5 @@ config/cnpj_arquivos.csv
 reports/cnpj_domains_*.csv
 reports/cnpj_nulos_*.csv
 reports/cnpj_tabela_decisao_*.csv
+models/*.joblib
 

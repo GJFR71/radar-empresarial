@@ -1,0 +1,13 @@
+Modelo 2 — Descontinuidade (proxy: qtd_ativos==0)
+Dataset: data\processed\model\model2_dataset_20260110.parquet
+Amostra usada: 289,814 linhas (0=full)
+Model: rf
+n_estimators=300 | max_depth=14 | min_leaf=80
+
+ROC AUC: 0.7690
+PR-AUC:  0.7520
+Lift@10%: 1.837
+Precision@10%: 0.875
+Recall@10%: 0.184
+
+Obs.: métricas @10% simulam priorização comercial (top decil).

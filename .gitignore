@@ -62,3 +62,13 @@ reports/cnpj_nulos_*.csv
 reports/cnpj_tabela_decisao_*.csv
 models/*.joblib
 models/
+
+# Artefatos locais do Python
+*.egg-info/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+.tmp/

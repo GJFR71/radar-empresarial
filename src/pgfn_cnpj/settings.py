@@ -16,6 +16,9 @@ PGFN_RAW_DIR = DATA_RAW_DIR / "pgfn"
 CNPJ_RAW_DIR = DATA_RAW_DIR / "cnpj"
 
 DATA_STAGING_DIR = DATA_DIR / "staging"
+PGFN_STAGING_DIR = DATA_STAGING_DIR / "pgfn"
+CNPJ_STAGING_DIR = DATA_STAGING_DIR / "cnpj"
+
 DATA_PROCESSED_DIR = DATA_DIR / "processed"
 
 PGFN_PROCESSED_DIR = DATA_PROCESSED_DIR / "pgfn"
@@ -43,6 +46,8 @@ def ensure_project_directories() -> None:
         PGFN_RAW_DIR,
         CNPJ_RAW_DIR,
         DATA_STAGING_DIR,
+        PGFN_STAGING_DIR,
+        CNPJ_STAGING_DIR,
         PGFN_PROCESSED_DIR,
         CNPJ_PROCESSED_DIR,
         ABT_PROCESSED_DIR,

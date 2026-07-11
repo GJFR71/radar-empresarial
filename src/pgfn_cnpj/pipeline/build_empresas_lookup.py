@@ -1,4 +1,4 @@
-﻿"""Constrói o lookup cadastral de empresas do CNPJ.
+"""Constrói o lookup cadastral de empresas do CNPJ.
 
 O processamento lê recursivamente os arquivos extraídos do conjunto
 ``Empresas`` da Receita Federal e mantém as variáveis necessárias para

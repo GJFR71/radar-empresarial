@@ -1,4 +1,4 @@
-﻿"""Extrai os arquivos dos Dados Abertos do CNPJ.
+"""Extrai os arquivos dos Dados Abertos do CNPJ.
 
 Os recursos são definidos em ``config/cnpj_arquivos.csv`` e organizados
 em dois grupos:

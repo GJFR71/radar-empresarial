@@ -1,8 +1,8 @@
 <div align="center">
 
-# PGFN + CNPJ
+# Radar Empresarial
 
-### Pipeline de dados públicos para análise e priorização empresarial
+### Inteligência fiscal e cadastral com dados públicos
 
 Da ingestão das fontes públicas à consulta analítica e explicável por CNPJ.
 
@@ -394,7 +394,7 @@ config/
 ## Arquitetura do repositório
 
 ```text
-pgfn-abt-cnpj/
+radar-empresarial/
 │
 ├── config/
 │   ├── pgfn_periodos.csv
@@ -511,8 +511,8 @@ de grande volume são gerados localmente e não são versionados no Git.
 Clone o repositório:
 
 ```bash
-git clone https://github.com/GJFR71/pgfn-abt-cnpj.git
-cd pgfn-abt-cnpj
+git clone https://github.com/GJFR71/radar-empresarial.git
+cd radar-empresarial
 ```
 
 Crie e ative um ambiente virtual.

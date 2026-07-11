@@ -72,3 +72,8 @@ __pycache__/
 build/
 dist/
 .tmp/
+
+# Arquivos de configuração necessários para reproduzir o projeto
+!config/
+!config/pgfn_periodos.csv
+!config/cnpj_arquivos.csv

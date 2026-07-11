@@ -16,7 +16,7 @@ Da ingestão das fontes públicas à consulta analítica e explicável por CNPJ.
 
 <p align="center">
   <img
-    src="assets/radar-empresarial-cover.png"
+    src="assets/radar_empresarial.png"
     alt="Radar Empresarial — inteligência fiscal e cadastral com dados públicos"
     width="100%"
   >

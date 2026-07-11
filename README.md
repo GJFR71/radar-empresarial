@@ -14,6 +14,8 @@ Da ingestão das fontes públicas à consulta analítica e explicável por CNPJ.
 
 </div>
 
+![Capa Radar Empresarial](assets/radar-empresarial-cover.png)
+
 ---
 
 ## Visão geral
